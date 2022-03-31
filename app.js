@@ -1,70 +1,7 @@
-//1
-const allowedChars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'A', 'B', 'C', 'D', 'E', 'F', 'G', '1', '2', '3', '4', '5', '6', '7']
-
-function login(password) {
-    return password === "ACc2"
-}
-
-function brute(maxLengthPassword = 4) {
-
-    for (let passwordLenght = 1; passwordLenght <= maxLengthPassword; passwordLenght++) {
-
-        //генерим стартовый пароль опр. длины котроый заполняется нолями
-        let passwordArray = createPasswordArray(passwordLenght)
-
-        do {
-            //генерим строку
-            let password = createStringFromArray(passwordArray)
-            console.log(password);
-
-            if (login(password)) {
-                return password
-            }
-
-            passwordArray = getNextPasswordArray(passwordArray)
-
-        } while (passwordArray);
-    }
-    return null
-}
-
-function createPasswordArray(arrayLenght) {
-    const passwordArray = []
-    for (let i = 0; i < arrayLenght; i++) {
-        passwordArray.push(0)
-    }
-    return passwordArray
-}
-
-//массив с числами превратить в массив с символами
-function createStringFromArray(passwordArray) {
-    let password = ''
-    for (let i = 0; i < passwordArray.length; i++) {
-        password += allowedChars[passwordArray[i]]
-    }
-    return password
-}
-
-function getNextPasswordArray(passwordArray) {
-    for (let i = passwordArray.length - 1; i >= 0; i--) {
-        if (passwordArray[i] < allowedChars.length - 1) {
-            passwordArray[i]++;
-            return passwordArray;
-        }
-
-        passwordArray[i] = 0;
-    }
-
-    return null
-}
-
-console.time();
-console.log(brute());
-console.timeEnd()
+const axios = require('axios');
 
 
 
-//2
 const allowedChars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'A', 'B', 'C', 'D', 'E', 'F', 'G', '1', '2', '3', '4', '5', '6', '7']
 
 function login(password) {
@@ -94,7 +31,7 @@ function createPasswordArray(arrayLenght) {
     return passwordArray
 }
 
-//массив с числами превратить в массив с символами
+//массив с числами превращаем в массив с символами
 function createStringFromArray(passwordArray) {
     let password = ''
     for (let i = 0; i < passwordArray.length; i++) {
@@ -116,7 +53,6 @@ function getNextPasswordArray(passwordArray) {
 
 
 console.time();
-
 const iterator = brute(4)
 for (let password of iterator) {
     console.log(password)
@@ -129,30 +65,46 @@ console.timeEnd()
 
 
 
-//3
-const password = "AC84"
-const allowedSymbols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'A', 'B', 'C', 'D', 'E', 'F', 'G', '1', '2', '3', '4', '5', '6', '7', '8', '9'].join('');
 
-let brut = ""
 
-const checked = [];
-let duplicates = 0;
 
-console.time();
 
-while (brut !== password) {
 
-    brut = ""
 
-    for (let i = 0; i < password.length; i++) {
-        let index = Math.floor(Math.random() * allowedSymbols.length)
-        brut += allowedSymbols.substring(index, index + 1)
-        console.log(brut)
+
+class Queue {
+    constructor() {
+        this.arrayPromises = Array(100).fill(new Promise((resolve, reject) => {
+            setTimeout(() => {
+                // resolve('good');
+            }, 500);
+        }))
     }
-    checked.includes(brut) ? duplicates++ : checked.push(brut)
+
+    takePackPromises = async () => {
+        while (!this.arrayPromises.length == 0) {
+
+            for (let i = 1; i < 21; i++) {
+                await axios({
+                    method: 'get',
+                    url: 'https://api.privatbank.ua/p24api/exchange_rates?json&date=31.03.2022'
+                })
+                    .then(response => {
+                        console.log("Try to login №\t", i);
+                        this.arrayPromises.pop(i);
+                    })
+                    .catch(function (error) {
+                        console.log(error.message);
+                    });
+            }
+        }
+    }
+
+    get promises() {
+        return this.arrayPromises;
+    }
 }
 
-console.log("duplicates:\t", duplicates);
-console.log(brut, "Done, I find!")
-
-console.timeEnd();
+const q = new Queue();
+// console.log(q.promises);
+q.takePackPromises()
