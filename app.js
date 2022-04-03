@@ -1,7 +1,3 @@
-const axios = require('axios');
-
-
-
 const allowedChars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'A', 'B', 'C', 'D', 'E', 'F', 'G', '1', '2', '3', '4', '5', '6', '7']
 
 function login(password) {
@@ -71,40 +67,3 @@ console.timeEnd()
 
 
 
-
-class Queue {
-    constructor() {
-        this.arrayPromises = Array(100).fill(new Promise((resolve, reject) => {
-            setTimeout(() => {
-                // resolve('good');
-            }, 500);
-        }))
-    }
-
-    takePackPromises = async () => {
-        while (!this.arrayPromises.length == 0) {
-
-            for (let i = 1; i < 21; i++) {
-                await axios({
-                    method: 'get',
-                    url: 'https://api.privatbank.ua/p24api/exchange_rates?json&date=31.03.2022'
-                })
-                    .then(response => {
-                        console.log("Try to login №\t", i);
-                        this.arrayPromises.pop(i);
-                    })
-                    .catch(function (error) {
-                        console.log(error.message);
-                    });
-            }
-        }
-    }
-
-    get promises() {
-        return this.arrayPromises;
-    }
-}
-
-const q = new Queue();
-// console.log(q.promises);
-q.takePackPromises()
