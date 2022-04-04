@@ -58,12 +58,3 @@ for (let password of iterator) {
     }
 }
 console.timeEnd()
-
-
-
-
-
-
-
-
-
